@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  redpanda:
+    image: redpandadata/redpanda:latest
+    container_name: redpanda
+    ports:
+      - "9092:9092"   # Kafka API
+      - "9644:9644"   # Admin API
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp=1
+      - --memory=1024M
+      - --reserve-memory=0M
+      - --check=false
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://localhost:9092
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: pratyaysarkar
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: itemizdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./itemiz-ai
+      dockerfile: Dockerfile
+    container_name: itemiz-backend
+    restart: always
+    env_file:
+      - ./itemiz-ai/.env
+    depends_on:
+      - postgres
+      - redpanda
+    ports:
+      - "3000:3000"
+
+volumes:
+  redpanda_data:
+  postgres_data:

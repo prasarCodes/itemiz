@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS groups (
+    id SERIAL PRIMARY KEY,
+    group_id VARCHAR(12) UNIQUE NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    created_by VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
